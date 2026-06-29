@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Will you go on a date with me?</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#E63E6D; --pink-deep:#C9285A; --pink-soft:#FCE3EC; --pink-line:#F6B8CE;
+    --orange:#F0A04B; --cream:#FFF6F0; --cream-2:#FDEDE2; --ink:#3A2A30; --muted:#9A8088; --white:#FFFFFF;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    font-family:'Quicksand', sans-serif; color:var(--ink);
+    background:radial-gradient(1200px 600px at 50% -10%, var(--cream-2), transparent 60%), linear-gradient(170deg, var(--cream) 0%, #FFEFEF 100%);
+    min-height:100vh; min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:24px 16px; overflow-x:hidden;
+  }
+  .card{ width:100%; max-width:440px; background:var(--white); border-radius:30px; padding:34px 26px 30px; text-align:center; position:relative; z-index:2;
+    box-shadow:0 1px 0 rgba(255,255,255,.8) inset, 0 24px 60px -24px rgba(201,40,90,.35), 0 8px 24px -12px rgba(0,0,0,.12); }
+
+  .mascot{ font-size:54px; line-height:1; margin-bottom:6px; }
+  .js .mascot{ animation:bob 2.6s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(-3deg);} 50%{ transform:translateY(-8px) rotate(3deg);} }
+  .eyebrow{ display:inline-block; font-weight:700; font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink);
+    background:#fff3cd; padding:5px 11px; border-radius:7px; box-shadow:2px 2px 0 var(--ink); margin-bottom:14px; }
+  h1{ font-family:'Fraunces', serif; font-weight:700; font-size:clamp(28px, 8vw, 38px); line-height:1.05; color:var(--pink); letter-spacing:-.01em; margin-bottom:6px; }
+  .sub{ color:var(--muted); font-size:14px; font-weight:500; margin-bottom:22px; }
+
+  .field-label{ display:block; text-align:left; font-weight:700; font-size:14px; color:var(--ink); margin:0 4px 8px; }
+  input[type="date"]{ width:100%; font-family:'Quicksand', sans-serif; font-size:17px; font-weight:600; color:var(--ink); padding:16px 18px;
+    border:2px solid var(--pink-line); border-radius:16px; background:var(--cream); margin-bottom:18px; }
+  input[type="date"]:focus{ outline:none; border-color:var(--pink); background:#fff; }
+
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:22px; }
+  .food{ position:relative; display:block; background:var(--white); border:2px solid #eee; border-radius:18px; padding:16px 10px 12px; cursor:pointer; user-select:none; }
+  .food input{ position:absolute; opacity:0; pointer-events:none; }
+  .food .emoji{ font-size:32px; display:block; margin-bottom:6px; }
+  .food .name{ font-weight:700; font-size:15px; }
+  .food .check{ position:absolute; top:8px; right:8px; width:24px; height:24px; border-radius:50%; background:var(--pink); color:#fff;
+    display:grid; place-items:center; font-size:13px; font-weight:700; opacity:0; transform:scale(.5); transition:.2s; }
+  .food:has(input:checked){ border-color:var(--pink); background:var(--pink-soft); box-shadow:0 8px 20px -10px rgba(230,62,109,.5); }
+  .food:has(input:checked) .check{ opacity:1; transform:scale(1); }
+
+  .btn{ font-family:'Quicksand', sans-serif; font-weight:700; font-size:18px; color:#fff; background:var(--pink); border:none; border-radius:40px;
+    padding:16px 30px; width:100%; cursor:pointer; box-shadow:0 12px 24px -10px rgba(230,62,109,.7); display:block; text-decoration:none; text-align:center; }
+  .btn + .btn{ margin-top:12px; }
+  .btn.wa{ background:#25D366; box-shadow:0 12px 24px -10px rgba(37,211,102,.7); }
+  .btn.mail{ background:#5B7FE6; box-shadow:0 12px 24px -10px rgba(91,127,230,.7); }
+  .btn[disabled]{ opacity:.45; }
+
+  /* No-JS: show every section stacked, hide JS-only bits */
+  .stage, .advance, .dots{ display:none; }
+  .sep{ height:1px; background:var(--pink-line); opacity:.5; margin:6px 4px 22px; }
+
+  /* JS mode: behave as a multi-step app */
+  .js .screen{ display:none; }
+  .js .screen.active{ display:block; }
+  .js .sep{ display:none; }
+  .js .stage{ display:flex; flex-direction:column; align-items:center; gap:14px; margin-top:8px; }
+  .js .advance{ display:block; }
+  .js .nativeSend{ display:none; }     /* in JS mode we use the pretty send buttons */
+  .js .dots{ display:flex; gap:8px; justify-content:center; margin-bottom:18px; }
+  .dots span{ width:8px; height:8px; border-radius:50%; background:var(--pink-line); }
+  .dots span.on{ background:var(--pink); width:22px; border-radius:6px; }
+  .dots.invisible{ visibility:hidden; }
+
+  #yesBtn{ background:var(--pink); transition:transform .15s; will-change:transform; }
+  #noBtn{ background:var(--orange); box-shadow:0 8px 18px -10px rgba(240,160,75,.8); position:relative; transition:transform .18s ease, font-size .18s, padding .18s, opacity .18s; }
+
+  .errmsg{ color:var(--pink-deep); font-weight:600; font-size:13px; margin:-8px 4px 16px; min-height:1px; }
+  .confetti{ position:fixed; top:-10px; width:10px; height:14px; z-index:5; pointer-events:none; border-radius:2px; }
+  .hidden{ display:none !important; }
+  .restart{ margin-top:18px; background:none; border:none; color:var(--muted); font-family:'Quicksand',sans-serif; font-weight:600; font-size:13px; cursor:pointer; text-decoration:underline; }
+  @media (prefers-reduced-motion: reduce){ .mascot{ animation:none; } }
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+
+  <div class="card">
+    <script>
+      /* ====== EDIT YOUR CONTACT INFO HERE ====== */
+      const ME = { name:"", whatsapp:"33769685492", email:"harbkamal99@hotmail.com" };
+    </script>
+
+    <div class="dots invisible" id="dots"><span data-dot="1"></span><span data-dot="2"></span></div>
+
+    <!-- STEP 1 : QUESTION -->
+    <section id="step1" class="screen active">
+      <div class="mascot">🥺</div>
+      <span class="eyebrow">No pressure but... say yes 🙏</span>
+      <h1>Will you go on a date with me?</h1>
+      <div class="stage" id="stage">
+        <button class="btn" id="yesBtn" type="button">Yes 💖</button>
+        <button class="btn" id="noBtn" type="button">No</button>
+      </div>
+      <div class="sep"></div>
+    </section>
+
+    <!-- The form holds date + food so it can be emailed with NO JavaScript -->
+    <form id="dateForm" action="mailto:harbkamal99@hotmail.com" method="post" enctype="text/plain">
+
+      <!-- STEP 2 : DATE -->
+      <section id="step2" class="screen">
+        <div class="mascot">📅</div>
+        <span class="eyebrow">Lock it in bestie</span>
+        <h1>So... when are you free?</h1>
+        <div class="sub">Anytime July 6–19 ✨ (just not the 10th!)</div>
+        <label class="field-label" for="date">Pick a Day</label>
+        <input type="date" id="date" name="When" min="2026-07-06" max="2026-07-19" required>
+        <div class="errmsg" id="dateErr"></div>
+        <button class="btn advance" id="next2" type="button">okay next →</button>
+        <div class="sep"></div>
+      </section>
+
+      <!-- STEP 3 : FOOD -->
+      <section id="step3" class="screen">
+        <div class="mascot">🍽️</div>
+        <span class="eyebrow">I'm always hungry tbh 🍔</span>
+        <h1>What are we feeling?</h1>
+        <div class="sub">(pick as many as you want, no judgement)</div>
+        <div class="grid">
+          <label class="food"><input type="checkbox" name="Food" value="Pizza">   <span class="emoji">🍕</span><span class="name">Pizza</span><span class="check">✓</span></label>
+          <label class="food"><input type="checkbox" name="Food" value="Sushi">   <span class="emoji">🍣</span><span class="name">Sushi</span><span class="check">✓</span></label>
+          <label class="food"><input type="checkbox" name="Food" value="Burgers"> <span class="emoji">🍔</span><span class="name">Burgers</span><span class="check">✓</span></label>
+          <label class="food"><input type="checkbox" name="Food" value="Pasta">   <span class="emoji">🍝</span><span class="name">Pasta</span><span class="check">✓</span></label>
+          <label class="food"><input type="checkbox" name="Food" value="Tacos">   <span class="emoji">🌮</span><span class="name">Tacos</span><span class="check">✓</span></label>
+          <label class="food"><input type="checkbox" name="Food" value="Lebanese food"><span class="emoji">🥙</span><span class="name">Lebanese food</span><span class="check">✓</span></label>
+        </div>
+        <!-- native send (works WITHOUT javascript) -->
+        <button class="btn nativeSend" type="submit">Send my answer 💌</button>
+        <!-- JS-mode advance to celebration -->
+        <button class="btn advance" id="next3" type="button">this one! →</button>
+      </section>
+    </form>
+
+    <!-- STEP 4 : CELEBRATION (JS only) -->
+    <section id="step4" class="screen">
+      <div class="mascot">🎉</div>
+      <h1>YAY! It's a date! 💕</h1>
+      <div class="sub" id="summary"></div>
+      <button class="btn wa hidden" id="sendWa" type="button">Send my answer on WhatsApp 💬</button>
+      <button class="btn mail hidden" id="sendMail" type="button">Send my answer by email 💌</button>
+      <button class="restart" id="restart" type="button">↺ start over</button>
+    </section>
+  </div>
+
+<script>
+  const state = { date:null, foods:[] };
+  const $ = id => document.getElementById(id);
+  const screens = ['step1','step2','step3','step4'];
+  const show = id => screens.forEach(s => $(s).classList.toggle('active', s === id));
+  const dotsEl = $('dots');
+  const setDots = n => { dotsEl.classList.toggle('invisible', n===0);
+    document.querySelectorAll('[data-dot]').forEach(d => d.classList.toggle('on', +d.dataset.dot <= n)); };
+
+  /* Step 1: gag */
+  const yesBtn = $('yesBtn'), noBtn = $('noBtn');
+  const pleas = ['No','Are you sure?','Really??','Think again!','Last chance...','Pretty please?',"Don't do it 🥹","You're kidding",'Reconsider?','😭'];
+  let dodges = 0, yesScale = 1;
+  function runAway(){
+    dodges++;
+    yesScale = Math.min(yesScale + 0.18, 3); yesBtn.style.transform = `scale(${yesScale})`;
+    noBtn.textContent = pleas[Math.min(dodges, pleas.length - 1)];
+    noBtn.style.fontSize = Math.max(18 - dodges*1.4, 9) + 'px';
+    noBtn.style.padding  = `${Math.max(16-dodges,6)}px ${Math.max(30-dodges*2,10)}px`;
+    const pad=20, w=noBtn.offsetWidth, h=noBtn.offsetHeight;
+    noBtn.style.position='fixed';
+    noBtn.style.left = Math.random()*(innerWidth - w - pad*2)+pad + 'px';
+    noBtn.style.top  = Math.random()*(innerHeight - h - pad*2)+pad + 'px';
+    noBtn.style.zIndex=10;
+    if (dodges>7) noBtn.style.opacity = Math.max(1-(dodges-7)*0.25,0);
+  }
+  noBtn.addEventListener('mouseover', runAway);
+  noBtn.addEventListener('touchstart', e => { e.preventDefault(); runAway(); }, {passive:false});
+  noBtn.addEventListener('click', e => { e.preventDefault(); runAway(); });
+  yesBtn.addEventListener('click', () => { show('step2'); setDots(1); });
+
+  /* Step 2: date */
+  const dateInput = $('date'), dateErr = $('dateErr');
+  const MIN='2026-07-06', MAX='2026-07-19', BLOCKED=['2026-07-10'];
+  $('next2').addEventListener('click', () => {
+    const v = dateInput.value;
+    if (!v){ dateErr.textContent='Pick a day first 😊'; return; }
+    if (v < MIN || v > MAX){ dateErr.textContent="I'm only free between July 6 and 19 🗓️"; return; }
+    if (BLOCKED.includes(v)){ dateErr.textContent="Anything but July 10th — I'm busy that day 🙈"; return; }
+    dateErr.textContent=''; state.date=v; show('step3'); setDots(2);
+  });
+
+  /* Step 3: food -> celebrate (intercept submit so it works either way) */
+  $('next3').addEventListener('click', celebrate);
+  $('dateForm').addEventListener('submit', e => { e.preventDefault(); celebrate(); });
+
+  /* Step 4 */
+  function prettyDate(){ return state.date ? new Date(state.date+'T00:00:00').toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}) : 'soon'; }
+  function prettyFood(){ return state.foods.length ? state.foods.join(', ').replace(/, ([^,]*)$/, ' & $1') : 'whatever we want'; }
+  function answerText(){ const to = ME.name ? `Hey ${ME.name}! ` : ''; return `${to}I said YES 💖\nLet's go on ${prettyDate()}.\nFood: ${prettyFood()} 🍽️`; }
+
+  function celebrate(){
+    state.foods = Array.from(document.querySelectorAll('input[name="Food"]:checked')).map(c=>c.value);
+    if (!state.date) state.date = dateInput.value || null;
+    $('summary').innerHTML = `See you <b>${prettyDate()}</b> 💌<br>We're getting <b>${prettyFood()}</b> 🍽️`;
+    if (ME.whatsapp){ $('sendWa').classList.remove('hidden');
+      $('sendWa').onclick = () => { window.location.href = `https://wa.me/${ME.whatsapp}?text=${encodeURIComponent(answerText())}`; }; }
+    if (ME.email){ $('sendMail').classList.remove('hidden');
+      $('sendMail').onclick = () => { window.location.href = `mailto:${ME.email}?subject=${encodeURIComponent('I said YES 💖')}&body=${encodeURIComponent(answerText())}`; }; }
+    show('step4'); setDots(0); confettiBurst();
+  }
+
+  function confettiBurst(){
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const colors=['#E63E6D','#F0A04B','#FFD166','#7FB8E6','#9B6FE0','#65D6A2'];
+    for(let i=0;i<90;i++){ const c=document.createElement('div'); c.className='confetti';
+      c.style.left=Math.random()*100+'vw'; c.style.background=colors[Math.floor(Math.random()*colors.length)];
+      const dur=2.2+Math.random()*1.8; c.style.transition=`transform ${dur}s linear, opacity ${dur}s linear`;
+      document.body.appendChild(c);
+      requestAnimationFrame(()=>{ c.style.transform=`translateY(${innerHeight+40}px) rotate(${Math.random()*720}deg)`; c.style.opacity='0'; });
+      setTimeout(()=>c.remove(), dur*1000+100);
+    }
+  }
+
+  $('restart').addEventListener('click', () => {
+    state.date=null; state.foods=[]; dateInput.value=''; dateErr.textContent='';
+    document.querySelectorAll('input[name="Food"]').forEach(c=>c.checked=false);
+    dodges=0; yesScale=1; yesBtn.style.transform=''; noBtn.removeAttribute('style'); noBtn.textContent='No';
+    show('step1'); setDots(0);
+  });
+</script>
+</body>
+</html>
