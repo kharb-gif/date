@@ -107,9 +107,9 @@
         <div class="mascot">📅</div>
         <span class="eyebrow">Lock it in bestie</span>
         <h1>So... when are you free?</h1>
-        <div class="sub">Anytime July 6–19 ✨ (just not the 10th!)</div>
+        <div class="sub">Pick any day that works for you ✨</div>
         <label class="field-label" for="date">Pick a Day</label>
-        <input type="date" id="date" name="When" min="2026-07-06" max="2026-07-19" required>
+        <input type="date" id="date" name="When" required>
         <div class="errmsg" id="dateErr"></div>
         <button class="btn advance" id="next2" type="button">okay next →</button>
         <div class="sep"></div>
@@ -180,12 +180,9 @@
 
   /* Step 2: date */
   const dateInput = $('date'), dateErr = $('dateErr');
-  const MIN='2026-07-06', MAX='2026-07-19', BLOCKED=['2026-07-10'];
   $('next2').addEventListener('click', () => {
     const v = dateInput.value;
     if (!v){ dateErr.textContent='Pick a day first 😊'; return; }
-    if (v < MIN || v > MAX){ dateErr.textContent="I'm only free between July 6 and 19 🗓️"; return; }
-    if (BLOCKED.includes(v)){ dateErr.textContent="Anything but July 10th — I'm busy that day 🙈"; return; }
     dateErr.textContent=''; state.date=v; show('step3'); setDots(2);
   });
 
